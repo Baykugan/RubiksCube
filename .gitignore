@@ -1,0 +1,6 @@
+__pycache__/
+.vscode
+Saves.json
+Sequences.json
+TestSimplify.json
+simplifySequence.py
