@@ -11,8 +11,6 @@ import pygame
 import numpy as np
 
 
-
-
 class RubiksCubeSimulator:
     '''
        6_ _ _ _ _ _ _ _6
@@ -32,7 +30,7 @@ class RubiksCubeSimulator:
 
         # Set up the display
         self.width, self.height = 640, 480
-        self.fov, self.distance = 500, 5
+        self.fov, self.distance = 90, 3.5
 
 
         self.angleX, self.angleY = 0, 0
@@ -183,11 +181,15 @@ class RubiksCubeSimulator:
         ]
 
     def projectPoint(self, point, screenWidth, screenHeight, fov, viewerDistance):
-        """Changes the x and y of a point based on the z, fov """
-        factor = fov / (viewerDistance + point[2])
-        x = point[0] * factor + screenWidth / 2
-        y = -point[1] * factor + screenHeight / 2
-        return (int(x), int(y), point[2])
+        fovRad = np.radians(fov)
+        focalLength = (screenWidth / 2) / np.tan(fovRad / 2)
+
+        adjustedZ = point[2] + viewerDistance
+
+        projectedX = (point[0] * focalLength) / adjustedZ + (screenWidth / 2)
+        projectedY = -(point[1] * focalLength) / adjustedZ + (screenHeight / 2)
+
+        return (int(projectedX), int(projectedY ), point[2])
 
 
     def rotateX(self, point, angle):
