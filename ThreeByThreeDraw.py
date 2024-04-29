@@ -29,8 +29,8 @@ class RubiksCubeSimulator:
         self.running = False
 
         # Set up the display
-        self.width, self.height = 640, 480
-        self.fov, self.distance = 90, 3.5
+        self.size = (640, 480)
+        self.fov, self.distance = 90, 3
 
 
         self.angleX, self.angleY = 0, 0
@@ -180,14 +180,14 @@ class RubiksCubeSimulator:
             (25, 43, 16, 4), (43, 42, 17, 16), (42, 27, 5, 17)
         ]
 
-    def projectPoint(self, point, screenWidth, screenHeight, fov, viewerDistance):
+    def projectPoint(self, point, size, fov, viewerDistance):
         fovRad = np.radians(fov)
-        focalLength = (screenWidth / 2) / np.tan(fovRad / 2)
+        focalLength = (min(size[0], size[1]) / 2) / np.tan(fovRad / 2)
 
         adjustedZ = point[2] + viewerDistance
 
-        projectedX = (point[0] * focalLength) / adjustedZ + (screenWidth / 2)
-        projectedY = -(point[1] * focalLength) / adjustedZ + (screenHeight / 2)
+        projectedX = (point[0] * focalLength) / adjustedZ + (size[0] / 2)
+        projectedY = -(point[1] * focalLength) / adjustedZ + (size[1] / 2)
 
         return (int(projectedX), int(projectedY ), point[2])
 
@@ -212,20 +212,18 @@ class RubiksCubeSimulator:
         return np.dot(point, rotationMatrix)
 
     async def run(self):
-        # Initialize Pygame
         # pylint: disable=no-member
         pygame.init()
-        # pylint: enable=no-member
 
         self.angleX, self.angleY = 0, 0
 
-        screen = pygame.display.set_mode((self.width, self.height))
+        screen = pygame.display.set_mode(self.size, pygame.RESIZABLE)
         pygame.display.set_caption("3D Rubik's Cube")
         clock = pygame.time.Clock()
 
         self.running = True
 
-        # pylint: disable=no-member
+
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -234,6 +232,9 @@ class RubiksCubeSimulator:
                     print("------------------------------------------")
                     print("Previous question continues: ", end="")
                     self.running = False
+                elif event.type == pygame.VIDEORESIZE:
+                    self.size = event.size
+                    screen = pygame.display.set_mode(event.size, pygame.RESIZABLE)
 
             keys = pygame.key.get_pressed()
             if keys[pygame.K_LEFT]:
@@ -263,7 +264,7 @@ class RubiksCubeSimulator:
                 points = []
                 for vertexIndex in square:
                     projectedPoint = self.projectPoint(rotatedVertices[vertexIndex], \
-                                                       self.width, self.height, self.fov, self.distance)
+                                                       self.size, self.fov, self.distance)
                     points.append(projectedPoint)
                 drawables.append(DrawableSquare(self.cube, points, index, self.colors))
 
