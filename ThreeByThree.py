@@ -1,11 +1,12 @@
 """
-This module extends the basic Rubik's Cube functionality to specifically handle a standard 3x3 Rubik's Cube.
-It includes asynchronous functions for manipulating the cube through various moves and sequences, reading
-user input asynchronously, and displaying the current state of the cube.
+This module extends the basic Rubik's Cube functionality to specifically handle a
+standard 3x3 Rubik's Cube. It includes asynchronous functions for manipulating the cube
+through various moves and sequences, reading user input asynchronously, and displaying
+the current state of the cube.
 
 Classes:
-    ThreeByThree: Represents a 3x3 Rubik's Cube with functionalities for executing moves, sequences, and
-                  solving the cube asynchronously.
+    ThreeByThree: Represents a 3x3 Rubik's Cube with functionalities for executing
+                  moves, sequences, and solving the cube asynchronously.
 """
 
 import re
@@ -19,19 +20,19 @@ from RubiksCube import Cube
 from ThreeByThreeDraw import RubiksCubeSimulator
 
 
-
-
 class ThreeByThree(Cube):
     """
-    Represents a 3x3 Rubik's Cube, providing functionalities for manipulating the cube's state
-    through moves and sequences, and solving the cube asynchronously. This class extends the
-    Cube class by implementing specific configurations and operations suited for a 3x3 Rubik's Cube.
+    Represents a 3x3 Rubik's Cube, providing functionalities for manipulating the
+    cube's state through moves and sequences, and solving the cube asynchronously. This
+    class extends the Cube class by implementing specific configurations and operations
+    suited for a 3x3 Rubik's Cube.
 
     Attributes:
         cubeType (str): Identifier for the type of cube, set to "ThreeByThree".
         indentLevel (int): Current indentation level for console output formatting.
         indentation (str): A string used for indenting console outputs.
-        sequenceMap (dict): Maps sequences of moves to their corresponding cube rotations.
+        sequenceMap (dict): Maps sequences of moves to their corresponding cube
+                            rotations.
         layers (dict): Organizes the cube's pieces in various layers and orientations.
         faces (list): List of all face pieces structured in a specific cube orientation.
     """
@@ -41,44 +42,64 @@ class ThreeByThree(Cube):
 
         self.cubeType = "ThreeByThree"
 
-        with open('Sequences.json', 'r', encoding="UTF-8") as file:
+        with open("Sequences.json", "r", encoding="UTF-8") as file:
             self.sequenceMap = json.load(file)[self.cubeType]
-
 
         # Organizes all non-internal layer elements into clockwise sequences
         # Starts from the element nearest to the origin (0, 0, 0).
+        # fmt: off
         self.layers = {
             "U": [[self.pieceList[0][1][1]],
-                  [self.pieceList[0][0][0], self.pieceList[0][1][0], self.pieceList[0][2][0], self.pieceList[0][2][1],
-                   self.pieceList[0][2][2], self.pieceList[0][1][2], self.pieceList[0][0][2], self.pieceList[0][0][1]]],
+                  [self.pieceList[0][0][0], self.pieceList[0][1][0],
+                   self.pieceList[0][2][0], self.pieceList[0][2][1],
+                   self.pieceList[0][2][2], self.pieceList[0][1][2],
+                   self.pieceList[0][0][2], self.pieceList[0][0][1]]],
             "F": [[self.pieceList[1][0][1]],
-                  [self.pieceList[0][0][0], self.pieceList[0][0][1], self.pieceList[0][0][2], self.pieceList[1][0][2],
-                   self.pieceList[2][0][2], self.pieceList[2][0][1], self.pieceList[2][0][0], self.pieceList[1][0][0]]],
+                  [self.pieceList[0][0][0], self.pieceList[0][0][1],
+                   self.pieceList[0][0][2], self.pieceList[1][0][2],
+                   self.pieceList[2][0][2], self.pieceList[2][0][1],
+                   self.pieceList[2][0][0], self.pieceList[1][0][0]]],
             "L": [[self.pieceList[1][1][0]],
-                  [self.pieceList[0][0][0], self.pieceList[1][0][0], self.pieceList[2][0][0], self.pieceList[2][1][0],
-                   self.pieceList[2][2][0], self.pieceList[1][2][0], self.pieceList[0][2][0], self.pieceList[0][1][0]]],
+                  [self.pieceList[0][0][0], self.pieceList[1][0][0],
+                   self.pieceList[2][0][0], self.pieceList[2][1][0],
+                   self.pieceList[2][2][0], self.pieceList[1][2][0],
+                   self.pieceList[0][2][0], self.pieceList[0][1][0]]],
 
             "D": [[self.pieceList[2][1][1]],
-                  [self.pieceList[2][0][0], self.pieceList[2][0][1], self.pieceList[2][0][2], self.pieceList[2][1][2],
-                   self.pieceList[2][2][2], self.pieceList[2][2][1], self.pieceList[2][2][0], self.pieceList[2][1][0]]],
+                  [self.pieceList[2][0][0], self.pieceList[2][0][1],
+                   self.pieceList[2][0][2], self.pieceList[2][1][2],
+                   self.pieceList[2][2][2], self.pieceList[2][2][1],
+                   self.pieceList[2][2][0], self.pieceList[2][1][0]]],
             "B": [[self.pieceList[1][2][1]],
-                  [self.pieceList[0][2][0], self.pieceList[1][2][0], self.pieceList[2][2][0], self.pieceList[2][2][1],
-                   self.pieceList[2][2][2], self.pieceList[1][2][2], self.pieceList[0][2][2], self.pieceList[0][2][1]]],
+                  [self.pieceList[0][2][0], self.pieceList[1][2][0],
+                   self.pieceList[2][2][0], self.pieceList[2][2][1],
+                   self.pieceList[2][2][2], self.pieceList[1][2][2],
+                   self.pieceList[0][2][2], self.pieceList[0][2][1]]],
             "R": [[self.pieceList[1][1][2]],
-                  [self.pieceList[0][0][2], self.pieceList[0][1][2], self.pieceList[0][2][2], self.pieceList[1][2][2],
-                   self.pieceList[2][2][2], self.pieceList[2][1][2], self.pieceList[2][0][2], self.pieceList[1][0][2]]],
+                  [self.pieceList[0][0][2], self.pieceList[0][1][2],
+                   self.pieceList[0][2][2], self.pieceList[1][2][2],
+                   self.pieceList[2][2][2], self.pieceList[2][1][2],
+                   self.pieceList[2][0][2], self.pieceList[1][0][2]]],
 
             "E": [[self.pieceList[1][1][1]],
-                  [self.pieceList[1][0][0], self.pieceList[1][0][1], self.pieceList[1][0][2], self.pieceList[1][1][2],
-                   self.pieceList[1][2][2], self.pieceList[1][2][1], self.pieceList[1][2][0], self.pieceList[1][1][0]]],
+                  [self.pieceList[1][0][0], self.pieceList[1][0][1],
+                   self.pieceList[1][0][2], self.pieceList[1][1][2],
+                   self.pieceList[1][2][2], self.pieceList[1][2][1],
+                   self.pieceList[1][2][0], self.pieceList[1][1][0]]],
             "S": [[self.pieceList[1][1][1]],
-                  [self.pieceList[0][1][0], self.pieceList[0][1][1], self.pieceList[0][1][2], self.pieceList[1][1][2],
-                   self.pieceList[2][1][2], self.pieceList[2][1][1], self.pieceList[2][1][0], self.pieceList[1][1][0]]],
+                  [self.pieceList[0][1][0], self.pieceList[0][1][1],
+                   self.pieceList[0][1][2], self.pieceList[1][1][2],
+                   self.pieceList[2][1][2], self.pieceList[2][1][1],
+                   self.pieceList[2][1][0], self.pieceList[1][1][0]]],
             "M": [[self.pieceList[1][1][1]],
-                  [self.pieceList[0][0][1], self.pieceList[1][0][1], self.pieceList[2][0][1], self.pieceList[2][1][1],
-                   self.pieceList[2][2][1], self.pieceList[1][2][1], self.pieceList[0][2][1], self.pieceList[0][1][1]]]
+                  [self.pieceList[0][0][1], self.pieceList[1][0][1],
+                   self.pieceList[2][0][1], self.pieceList[2][1][1],
+                   self.pieceList[2][2][1], self.pieceList[1][2][1],
+                   self.pieceList[0][2][1], self.pieceList[0][1][1]]]
         }
+        # fmt: on
 
+        #fmt: off
         self.faces = [
             # Up
             self.pieceList[0][2][0], self.pieceList[0][2][1], self.pieceList[0][2][2],
@@ -105,9 +126,9 @@ class ThreeByThree(Cube):
             self.pieceList[2][1][0], self.pieceList[2][1][1], self.pieceList[2][1][2],
             self.pieceList[2][2][0], self.pieceList[2][2][1], self.pieceList[2][2][2]
         ]
+        # fmt: on
 
-
-    async def doMove(self, move:str) -> None:
+    async def doMove(self, move: str) -> None:
         """
         Executes a single cube move asynchronously as specified by the move notation.
 
@@ -118,7 +139,7 @@ class ThreeByThree(Cube):
         handles the updating of the move history.
         """
         # Extract repeat part
-        repeat = int(match.group())%4 if (match := re.search(r"\d+", move)) else 1
+        repeat = int(match.group()) % 4 if (match := re.search(r"\d+", move)) else 1
 
         # Generalizes suffix
         if repeat == 0:
@@ -146,23 +167,23 @@ class ThreeByThree(Cube):
             await asyncio.sleep(0.2)
 
 
-
 async def getInput(cube, simulator):
     """
     Handles user input asynchronously in a loop, allowing the user to interact with
-    the cube simulation through various commands like adding sequences, saving sequences,
-    moving the cube, scrambling, solving, and managing the simulation state.
+    the cube simulation through various commands like adding sequences, saving
+    sequences, moving the cube, scrambling, solving, and managing the simulation state.
 
     Parameters:
         cube (ThreeByThree): The cube object to interact with.
-        simulator (RubiksCubeSimulator): The cube simulator object for graphical interaction.
+        simulator (RubiksCubeSimulator): The cube simulator object for graphical
+                                         interaction.
     """
 
     async def shutdown(simulator):
         await asyncShutdown.wait()
         simulator.running = False
 
-    while (inp := await ainput("What to do? ")):
+    while inp := await ainput("What to do? "):
         if re.search(r"(?i)add seq", inp):
             cube.editSequenceMap()
         elif re.search(r"(?i)save seq", inp):
@@ -200,10 +221,8 @@ async def getInput(cube, simulator):
     asyncShutdown.set()
 
 
-
-
-
 asyncShutdown = asyncio.Event()
+
 
 async def main():
     """
@@ -215,5 +234,6 @@ async def main():
 
     await getInput(cube, simulator)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     asyncio.run(main())

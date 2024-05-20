@@ -1,9 +1,11 @@
 """
-This module provides a graphical simulation of a 3x3 Rubik's Cube using Pygame. It renders a 3D Rubik's Cube that can be
-interactively rotated and manipulated. It supports asynchronous operations to keep the simulation responsive.
+This module provides a graphical simulation of a 3x3 Rubik's Cube using Pygame. 
+It renders a 3D Rubik's Cube that can be interactively rotated and manipulated.
+It supports asynchronous operations to keep the simulation responsive.
 
 Classes:
-    RubiksCubeSimulator: Handles the graphical rendering and interaction of a 3x3 Rubik's Cube simulation in a 3D space.
+    RubiksCubeSimulator: Handles the graphical rendering and interaction of a 3x3 
+    Rubik's Cube simulation in a 3D space.
 """
 
 import asyncio
@@ -12,7 +14,7 @@ import numpy as np
 
 
 class RubiksCubeSimulator:
-    '''
+    """
        6_ _ _ _ _ _ _ _6
        /|             /|
       / |            / |
@@ -23,7 +25,8 @@ class RubiksCubeSimulator:
     |  /           |  /
     | /            | /
     0/_ _ _ _ _ _ _1/
-    '''
+    """
+
     def __init__(self, cube) -> None:
         self.cube = cube
         self.running = False
@@ -32,19 +35,19 @@ class RubiksCubeSimulator:
         self.size = (640, 480)
         self.fov, self.distance = 90, 3
 
-
         self.angleX, self.angleY = 0, 0
 
         # Define colors
         self.colors = {
-            'white'.ljust(6): (255, 255, 255),
-            'green'.ljust(6): (0, 255, 0),
-            'red'.ljust(6): (255, 0, 0),
-            'blue'.ljust(6): (0, 0, 255),
-            'orange'.ljust(6): (255, 165, 0),
-            'yellow'.ljust(6): (255, 255, 0)
+            "white".ljust(6): (255, 255, 255),
+            "green".ljust(6): (0, 255, 0),
+            "red".ljust(6): (255, 0, 0),
+            "blue".ljust(6): (0, 0, 255),
+            "orange".ljust(6): (255, 165, 0),
+            "yellow".ljust(6): (255, 255, 0),
         }
 
+        # fmt: off
         # Define vertices of a cube
         self.vertices = [
             # Points on the corners of the cube
@@ -124,7 +127,9 @@ class RubiksCubeSimulator:
             np.array([-1, -1/3, 1/3]),
             np.array([-1, 1/3, 1/3]),
         ]
+        # fmt: on
 
+        # fmt: off
         # Define edges between vertices
         self.edges = [
             # Edges of the cube
@@ -151,7 +156,9 @@ class RubiksCubeSimulator:
             # (48, 49), (49, 50), (50, 51), (51, 48),
             # (52, 53), (53, 54), (54, 55), (55, 52)
         ]
+        # fmt: on
 
+        # fmt: off
         # Define squares
         self.squares = [
             # Up
@@ -179,6 +186,7 @@ class RubiksCubeSimulator:
             (24, 40, 43, 25), (40, 41, 42, 43), (41, 26, 27, 42),
             (25, 43, 16, 4), (43, 42, 17, 16), (42, 27, 5, 17)
         ]
+        # fmt: on
 
     def projectPoint(self, point, size, fov, viewerDistance):
         fovRad = np.radians(fov)
@@ -189,26 +197,28 @@ class RubiksCubeSimulator:
         projectedX = (point[0] * focalLength) / adjustedZ + (size[0] / 2)
         projectedY = -(point[1] * focalLength) / adjustedZ + (size[1] / 2)
 
-        return (int(projectedX), int(projectedY ), point[2])
-
+        return (int(projectedX), int(projectedY), point[2])
 
     def rotateX(self, point, angle):
-        """ Rotate a point around the x-axis by the given angle. """
-        rotationMatrix = np.array([
-            [1, 0, 0],
-            [0, np.cos(angle), -np.sin(angle)],
-            [0, np.sin(angle), np.cos(angle)]
-        ])
+        """Rotate a point around the x-axis by the given angle."""
+        rotationMatrix = np.array(
+            [
+                [1, 0, 0],
+                [0, np.cos(angle), -np.sin(angle)],
+                [0, np.sin(angle), np.cos(angle)],
+            ]
+        )
         return np.dot(point, rotationMatrix)
 
-
     def rotateY(self, point, angle):
-        """ Rotate a point around the y-axis by the given angle. """
-        rotationMatrix = np.array([
-            [np.cos(angle), 0, np.sin(angle)],
-            [0, 1, 0],
-            [-np.sin(angle), 0, np.cos(angle)]
-        ])
+        """Rotate a point around the y-axis by the given angle."""
+        rotationMatrix = np.array(
+            [
+                [np.cos(angle), 0, np.sin(angle)],
+                [0, 1, 0],
+                [-np.sin(angle), 0, np.cos(angle)],
+            ]
+        )
         return np.dot(point, rotationMatrix)
 
     async def run(self):
@@ -222,7 +232,6 @@ class RubiksCubeSimulator:
         clock = pygame.time.Clock()
 
         self.running = True
-
 
         while self.running:
             for event in pygame.event.get():
@@ -253,7 +262,10 @@ class RubiksCubeSimulator:
             # pylint: enable=no-member
 
             # Apply rotation
-            rotatedVertices = [self.rotateX(self.rotateY(vertex, self.angleY), self.angleX) for vertex in self.vertices]
+            rotatedVertices = [
+                self.rotateX(self.rotateY(vertex, self.angleY), self.angleX)
+                for vertex in self.vertices
+            ]
 
             screen.fill((100, 100, 100))  # Clear the screen
 
@@ -263,28 +275,21 @@ class RubiksCubeSimulator:
             for index, square in enumerate(self.squares):
                 points = []
                 for vertexIndex in square:
-                    projectedPoint = self.projectPoint(rotatedVertices[vertexIndex], \
-                                                       self.size, self.fov, self.distance)
+                    projectedPoint = self.projectPoint(
+                        rotatedVertices[vertexIndex], self.size, self.fov, self.distance
+                    )
                     points.append(projectedPoint)
                 drawables.append(DrawableSquare(self.cube, points, index, self.colors))
-
 
             drawables.sort(key=lambda obj: obj.averageZ, reverse=True)
             for drawable in drawables:
                 drawable.draw(screen)
 
-
             pygame.display.flip()  # Update the display
             clock.tick(144)  # Limit frames per second
-            await asyncio.sleep(0) # Yields to event loop
+            await asyncio.sleep(0)  # Yields to event loop
 
         pygame.quit()
-
-
-
-
-
-
 
 
 class DrawableSquare:
@@ -298,10 +303,12 @@ class DrawableSquare:
     def draw(self, surface):
         points = self.removeZ()
         piece = self.cube.faces[self.index][0]
-        pygame.draw.polygon(surface, self.colors[piece.faces[self.faces[self.index//9]]], points)
+        pygame.draw.polygon(
+            surface, self.colors[piece.faces[self.faces[self.index // 9]]], points
+        )
         pygame.draw.polygon(surface, (0, 0, 0), points, 3)
 
-    def removeZ(self,):
+    def removeZ(self):
         newPoints = []
         for point in self.points:
             newPoints.append((point[0], point[1]))
