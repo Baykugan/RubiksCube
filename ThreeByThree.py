@@ -16,8 +16,8 @@ import asyncio
 from aioconsole import ainput
 
 
-from RubiksCube import Cube
-from ThreeByThreeDraw import RubiksCubeSimulator
+from rubiks_cube import Cube
+from three_by_three_draw import RubiksCubeSimulator
 
 
 class ThreeByThree(Cube):
@@ -28,10 +28,10 @@ class ThreeByThree(Cube):
     suited for a 3x3 Rubik's Cube.
 
     Attributes:
-        cubeType (str): Identifier for the type of cube, set to "ThreeByThree".
-        indentLevel (int): Current indentation level for console output formatting.
+        cube_type (str): Identifier for the type of cube, set to "ThreeByThree".
+        indent_level (int): Current indentation level for console output formatting.
         indentation (str): A string used for indenting console outputs.
-        sequenceMap (dict): Maps sequences of moves to their corresponding cube
+        sequence_map (dict): Maps sequences of moves to their corresponding cube
                             rotations.
         layers (dict): Organizes the cube's pieces in various layers and orientations.
         faces (list): List of all face pieces structured in a specific cube orientation.
@@ -40,95 +40,97 @@ class ThreeByThree(Cube):
     def __init__(self) -> None:
         super().__init__(3, 3, 3)
 
-        self.cubeType = "ThreeByThree"
+        self.cube_type = "ThreeByThree"
 
         with open("Sequences.json", "r", encoding="UTF-8") as file:
-            self.sequenceMap = json.load(file)[self.cubeType]
+            self.sequence_map = json.load(file)[self.cube_type]
 
         # Organizes all non-internal layer elements into clockwise sequences
         # Starts from the element nearest to the origin (0, 0, 0).
         # fmt: off
         self.layers = {
-            "U": [[self.pieceList[0][1][1]],
-                  [self.pieceList[0][0][0], self.pieceList[0][1][0],
-                   self.pieceList[0][2][0], self.pieceList[0][2][1],
-                   self.pieceList[0][2][2], self.pieceList[0][1][2],
-                   self.pieceList[0][0][2], self.pieceList[0][0][1]]],
-            "F": [[self.pieceList[1][0][1]],
-                  [self.pieceList[0][0][0], self.pieceList[0][0][1],
-                   self.pieceList[0][0][2], self.pieceList[1][0][2],
-                   self.pieceList[2][0][2], self.pieceList[2][0][1],
-                   self.pieceList[2][0][0], self.pieceList[1][0][0]]],
-            "L": [[self.pieceList[1][1][0]],
-                  [self.pieceList[0][0][0], self.pieceList[1][0][0],
-                   self.pieceList[2][0][0], self.pieceList[2][1][0],
-                   self.pieceList[2][2][0], self.pieceList[1][2][0],
-                   self.pieceList[0][2][0], self.pieceList[0][1][0]]],
+            "U": [[self.piece_list[0][1][1]],
+                  [self.piece_list[0][0][0], self.piece_list[0][1][0],
+                   self.piece_list[0][2][0], self.piece_list[0][2][1],
+                   self.piece_list[0][2][2], self.piece_list[0][1][2],
+                   self.piece_list[0][0][2], self.piece_list[0][0][1]]],
+            "F": [[self.piece_list[1][0][1]],
+                  [self.piece_list[0][0][0], self.piece_list[0][0][1],
+                   self.piece_list[0][0][2], self.piece_list[1][0][2],
+                   self.piece_list[2][0][2], self.piece_list[2][0][1],
+                   self.piece_list[2][0][0], self.piece_list[1][0][0]]],
+            "L": [[self.piece_list[1][1][0]],
+                  [self.piece_list[0][0][0], self.piece_list[1][0][0],
+                   self.piece_list[2][0][0], self.piece_list[2][1][0],
+                   self.piece_list[2][2][0], self.piece_list[1][2][0],
+                   self.piece_list[0][2][0], self.piece_list[0][1][0]]],
 
-            "D": [[self.pieceList[2][1][1]],
-                  [self.pieceList[2][0][0], self.pieceList[2][0][1],
-                   self.pieceList[2][0][2], self.pieceList[2][1][2],
-                   self.pieceList[2][2][2], self.pieceList[2][2][1],
-                   self.pieceList[2][2][0], self.pieceList[2][1][0]]],
-            "B": [[self.pieceList[1][2][1]],
-                  [self.pieceList[0][2][0], self.pieceList[1][2][0],
-                   self.pieceList[2][2][0], self.pieceList[2][2][1],
-                   self.pieceList[2][2][2], self.pieceList[1][2][2],
-                   self.pieceList[0][2][2], self.pieceList[0][2][1]]],
-            "R": [[self.pieceList[1][1][2]],
-                  [self.pieceList[0][0][2], self.pieceList[0][1][2],
-                   self.pieceList[0][2][2], self.pieceList[1][2][2],
-                   self.pieceList[2][2][2], self.pieceList[2][1][2],
-                   self.pieceList[2][0][2], self.pieceList[1][0][2]]],
+            "D": [[self.piece_list[2][1][1]],
+                  [self.piece_list[2][0][0], self.piece_list[2][0][1],
+                   self.piece_list[2][0][2], self.piece_list[2][1][2],
+                   self.piece_list[2][2][2], self.piece_list[2][2][1],
+                   self.piece_list[2][2][0], self.piece_list[2][1][0]]],
+            "B": [[self.piece_list[1][2][1]],
+                  [self.piece_list[0][2][0], self.piece_list[1][2][0],
+                   self.piece_list[2][2][0], self.piece_list[2][2][1],
+                   self.piece_list[2][2][2], self.piece_list[1][2][2],
+                   self.piece_list[0][2][2], self.piece_list[0][2][1]]],
+            "R": [[self.piece_list[1][1][2]],
+                  [self.piece_list[0][0][2], self.piece_list[0][1][2],
+                   self.piece_list[0][2][2], self.piece_list[1][2][2],
+                   self.piece_list[2][2][2], self.piece_list[2][1][2],
+                   self.piece_list[2][0][2], self.piece_list[1][0][2]]],
 
-            "E": [[self.pieceList[1][1][1]],
-                  [self.pieceList[1][0][0], self.pieceList[1][0][1],
-                   self.pieceList[1][0][2], self.pieceList[1][1][2],
-                   self.pieceList[1][2][2], self.pieceList[1][2][1],
-                   self.pieceList[1][2][0], self.pieceList[1][1][0]]],
-            "S": [[self.pieceList[1][1][1]],
-                  [self.pieceList[0][1][0], self.pieceList[0][1][1],
-                   self.pieceList[0][1][2], self.pieceList[1][1][2],
-                   self.pieceList[2][1][2], self.pieceList[2][1][1],
-                   self.pieceList[2][1][0], self.pieceList[1][1][0]]],
-            "M": [[self.pieceList[1][1][1]],
-                  [self.pieceList[0][0][1], self.pieceList[1][0][1],
-                   self.pieceList[2][0][1], self.pieceList[2][1][1],
-                   self.pieceList[2][2][1], self.pieceList[1][2][1],
-                   self.pieceList[0][2][1], self.pieceList[0][1][1]]]
+            "E": [[self.piece_list[1][1][1]],
+                  [self.piece_list[1][0][0], self.piece_list[1][0][1],
+                   self.piece_list[1][0][2], self.piece_list[1][1][2],
+                   self.piece_list[1][2][2], self.piece_list[1][2][1],
+                   self.piece_list[1][2][0], self.piece_list[1][1][0]]],
+            "S": [[self.piece_list[1][1][1]],
+                  [self.piece_list[0][1][0], self.piece_list[0][1][1],
+                   self.piece_list[0][1][2], self.piece_list[1][1][2],
+                   self.piece_list[2][1][2], self.piece_list[2][1][1],
+                   self.piece_list[2][1][0], self.piece_list[1][1][0]]],
+            "M": [[self.piece_list[1][1][1]],
+                  [self.piece_list[0][0][1], self.piece_list[1][0][1],
+                   self.piece_list[2][0][1], self.piece_list[2][1][1],
+                   self.piece_list[2][2][1], self.piece_list[1][2][1],
+                   self.piece_list[0][2][1], self.piece_list[0][1][1]]]
         }
         # fmt: on
 
-        #fmt: off
+        # pylint: disable=line-too-long
+        # fmt: off
         self.faces = [
             # Up
-            self.pieceList[0][2][0], self.pieceList[0][2][1], self.pieceList[0][2][2],
-            self.pieceList[0][1][0], self.pieceList[0][1][1], self.pieceList[0][1][2],
-            self.pieceList[0][0][0], self.pieceList[0][0][1], self.pieceList[0][0][2],
+            self.piece_list[0][2][0], self.piece_list[0][2][1], self.piece_list[0][2][2],
+            self.piece_list[0][1][0], self.piece_list[0][1][1], self.piece_list[0][1][2],
+            self.piece_list[0][0][0], self.piece_list[0][0][1], self.piece_list[0][0][2],
             # Left
-            self.pieceList[0][2][0], self.pieceList[0][1][0], self.pieceList[0][0][0],
-            self.pieceList[1][2][0], self.pieceList[1][1][0], self.pieceList[1][0][0],
-            self.pieceList[2][2][0], self.pieceList[2][1][0], self.pieceList[2][0][0],
+            self.piece_list[0][2][0], self.piece_list[0][1][0], self.piece_list[0][0][0],
+            self.piece_list[1][2][0], self.piece_list[1][1][0], self.piece_list[1][0][0],
+            self.piece_list[2][2][0], self.piece_list[2][1][0], self.piece_list[2][0][0],
             # Front
-            self.pieceList[0][0][0], self.pieceList[0][0][1], self.pieceList[0][0][2],
-            self.pieceList[1][0][0], self.pieceList[1][0][1], self.pieceList[1][0][2],
-            self.pieceList[2][0][0], self.pieceList[2][0][1], self.pieceList[2][0][2],
+            self.piece_list[0][0][0], self.piece_list[0][0][1], self.piece_list[0][0][2],
+            self.piece_list[1][0][0], self.piece_list[1][0][1], self.piece_list[1][0][2],
+            self.piece_list[2][0][0], self.piece_list[2][0][1], self.piece_list[2][0][2],
             # Right
-            self.pieceList[0][0][2], self.pieceList[0][1][2], self.pieceList[0][2][2],
-            self.pieceList[1][0][2], self.pieceList[1][1][2], self.pieceList[1][2][2],
-            self.pieceList[2][0][2], self.pieceList[2][1][2], self.pieceList[2][2][2],
+            self.piece_list[0][0][2], self.piece_list[0][1][2], self.piece_list[0][2][2],
+            self.piece_list[1][0][2], self.piece_list[1][1][2], self.piece_list[1][2][2],
+            self.piece_list[2][0][2], self.piece_list[2][1][2], self.piece_list[2][2][2],
             # Back
-            self.pieceList[0][2][2], self.pieceList[0][2][1], self.pieceList[0][2][0],
-            self.pieceList[1][2][2], self.pieceList[1][2][1], self.pieceList[1][2][0],
-            self.pieceList[2][2][2], self.pieceList[2][2][1], self.pieceList[2][2][0],
+            self.piece_list[0][2][2], self.piece_list[0][2][1], self.piece_list[0][2][0],
+            self.piece_list[1][2][2], self.piece_list[1][2][1], self.piece_list[1][2][0],
+            self.piece_list[2][2][2], self.piece_list[2][2][1], self.piece_list[2][2][0],
             # Down
-            self.pieceList[2][0][0], self.pieceList[2][0][1], self.pieceList[2][0][2],
-            self.pieceList[2][1][0], self.pieceList[2][1][1], self.pieceList[2][1][2],
-            self.pieceList[2][2][0], self.pieceList[2][2][1], self.pieceList[2][2][2]
+            self.piece_list[2][0][0], self.piece_list[2][0][1], self.piece_list[2][0][2],
+            self.piece_list[2][1][0], self.piece_list[2][1][1], self.piece_list[2][1][2],
+            self.piece_list[2][2][0], self.piece_list[2][2][1], self.piece_list[2][2][2]
         ]
         # fmt: on
+        # pylint: enable=line-too-long
 
-    async def doMove(self, move: str) -> None:
+    async def do_move(self, move: str) -> None:
         """
         Executes a single cube move asynchronously as specified by the move notation.
 
@@ -153,21 +155,21 @@ class ThreeByThree(Cube):
             repeat = 1
 
         # Add to previous moves
-        self.previousMoves += " " + move
+        self.previous_moves += " " + move
 
         # Simplifies if possible
-        self.previousMoves = self.simplifySequence(self.previousMoves)
+        self.previous_moves = self.simplify_sequence(self.previous_moves)
 
         # Adjust for prime move if applicable
         for _ in range(repeat):
             if move.endswith("'"):
-                self.rotateLayer(self.layers[move[:1]], move[:1], prime=True)
+                self.rotate_layer(self.layers[move[:1]], move[:1], prime=True)
             else:
-                self.rotateLayer(self.layers[move[:1]], move[:1])
+                self.rotate_layer(self.layers[move[:1]], move[:1])
             await asyncio.sleep(0.2)
 
 
-async def getInput(cube, simulator):
+async def get_input(cube, simulator):
     """
     Handles user input asynchronously in a loop, allowing the user to interact with
     the cube simulation through various commands like adding sequences, saving
@@ -185,22 +187,22 @@ async def getInput(cube, simulator):
 
     while inp := await ainput("What to do? "):
         if re.search(r"(?i)add seq", inp):
-            cube.editSequenceMap()
+            cube.edit_sequence_map()
         elif re.search(r"(?i)save seq", inp):
-            cube.saveSequenceMap()
+            cube.save_sequence_map()
         elif re.search(r"(?i)move", inp):
-            await cube.getMove()
+            await cube.get_move()
         elif re.search(r"(?i)scramble", inp):
             repeat = int(match.group()) if (match := re.search(r"\d+", inp)) else 50
             await cube.scramble(repeat)
-            cube.pPrint()
-            print(f"Solved = {cube.isSolved()}")
-            print(cube.previousMoves)
+            cube.pprint()
+            print(f"Solved = {cube.is_solved()}")
+            print(cube.previous_moves)
         elif re.search(r"(?i)solve", inp):
             await cube.solve()
-            cube.pPrint()
-            print(f"Solved = {cube.isSolved()}")
-            print(cube.previousMoves)
+            cube.pprint()
+            print(f"Solved = {cube.is_solved()}")
+            print(cube.previous_moves)
         elif re.search(r"(?i)save", inp):
             cube.save()
         elif re.search(r"(?i)shutdown", inp):
@@ -232,7 +234,7 @@ async def main():
     cube = ThreeByThree()
     simulator = RubiksCubeSimulator(cube)
 
-    await getInput(cube, simulator)
+    await get_input(cube, simulator)
 
 
 if __name__ == "__main__":

@@ -35,7 +35,7 @@ class RubiksCubeSimulator:
         self.size = (640, 480)
         self.fov, self.distance = 90, 3
 
-        self.angleX, self.angleY = 0, 0
+        self.angle_x, self.angle_y = 0, 0
 
         # Define colors
         self.colors = {
@@ -188,44 +188,44 @@ class RubiksCubeSimulator:
         ]
         # fmt: on
 
-    def projectPoint(self, point, size, fov, viewerDistance):
-        fovRad = np.radians(fov)
-        focalLength = (min(size[0], size[1]) / 2) / np.tan(fovRad / 2)
+    def project_point(self, point, size, fov, viewer_distance):
+        fov_rad = np.radians(fov)
+        focal_length = (min(size[0], size[1]) / 2) / np.tan(fov_rad / 2)
 
-        adjustedZ = point[2] + viewerDistance
+        adjusted_z = point[2] + viewer_distance
 
-        projectedX = (point[0] * focalLength) / adjustedZ + (size[0] / 2)
-        projectedY = -(point[1] * focalLength) / adjustedZ + (size[1] / 2)
+        projected_x = (point[0] * focal_length) / adjusted_z + (size[0] / 2)
+        projected_y = -(point[1] * focal_length) / adjusted_z + (size[1] / 2)
 
-        return (int(projectedX), int(projectedY), point[2])
+        return (int(projected_x), int(projected_y), point[2])
 
-    def rotateX(self, point, angle):
+    def rotate_x(self, point, angle):
         """Rotate a point around the x-axis by the given angle."""
-        rotationMatrix = np.array(
+        rotation_matrix = np.array(
             [
                 [1, 0, 0],
                 [0, np.cos(angle), -np.sin(angle)],
                 [0, np.sin(angle), np.cos(angle)],
             ]
         )
-        return np.dot(point, rotationMatrix)
+        return np.dot(point, rotation_matrix)
 
-    def rotateY(self, point, angle):
+    def rotate_y(self, point, angle):
         """Rotate a point around the y-axis by the given angle."""
-        rotationMatrix = np.array(
+        rotation_matrix = np.array(
             [
                 [np.cos(angle), 0, np.sin(angle)],
                 [0, 1, 0],
                 [-np.sin(angle), 0, np.cos(angle)],
             ]
         )
-        return np.dot(point, rotationMatrix)
+        return np.dot(point, rotation_matrix)
 
     async def run(self):
         # pylint: disable=no-member
         pygame.init()
 
-        self.angleX, self.angleY = 0, 0
+        self.angle_x, self.angle_y = 0, 0
 
         screen = pygame.display.set_mode(self.size, pygame.RESIZABLE)
         pygame.display.set_caption("3D Rubik's Cube")
@@ -247,23 +247,23 @@ class RubiksCubeSimulator:
 
             keys = pygame.key.get_pressed()
             if keys[pygame.K_LEFT]:
-                self.angleY -= 0.01
+                self.angle_y -= 0.01
             if keys[pygame.K_RIGHT]:
-                self.angleY += 0.01
+                self.angle_y += 0.01
             if keys[pygame.K_UP]:
-                self.angleX -= 0.01
+                self.angle_x -= 0.01
             if keys[pygame.K_DOWN]:
-                self.angleX += 0.01
+                self.angle_x += 0.01
             if keys[pygame.K_r]:
-                self.angleX = 0
-                self.angleY = 0
+                self.angle_x = 0
+                self.angle_y = 0
             if keys[pygame.K_m]:
                 self.cube.getMove()
             # pylint: enable=no-member
 
             # Apply rotation
-            rotatedVertices = [
-                self.rotateX(self.rotateY(vertex, self.angleY), self.angleX)
+            rotated_vertices = [
+                self.rotate_x(self.rotate_y(vertex, self.angle_y), self.angle_x)
                 for vertex in self.vertices
             ]
 
@@ -274,14 +274,17 @@ class RubiksCubeSimulator:
             drawables = []
             for index, square in enumerate(self.squares):
                 points = []
-                for vertexIndex in square:
-                    projectedPoint = self.projectPoint(
-                        rotatedVertices[vertexIndex], self.size, self.fov, self.distance
+                for vertex_index in square:
+                    projected_point = self.project_point(
+                        rotated_vertices[vertex_index],
+                        self.size,
+                        self.fov,
+                        self.distance,
                     )
-                    points.append(projectedPoint)
+                    points.append(projected_point)
                 drawables.append(DrawableSquare(self.cube, points, index, self.colors))
 
-            drawables.sort(key=lambda obj: obj.averageZ, reverse=True)
+            drawables.sort(key=lambda obj: obj.average_z, reverse=True)
             for drawable in drawables:
                 drawable.draw(screen)
 
@@ -293,28 +296,28 @@ class RubiksCubeSimulator:
 
 
 class DrawableSquare:
-    def __init__(self, cube, points, index, colorDict):
+    def __init__(self, cube, points, index, color_dict):
         self.cube = cube
         self.points = points  # Points should be a list of tuples or Vector3
         self.faces = ["U", "L", "F", "R", "B", "D"]
         self.index = index
-        self.colors = colorDict
+        self.colors = color_dict
 
     def draw(self, surface):
-        points = self.removeZ()
+        points = self.remove_z()
         piece = self.cube.faces[self.index][0]
         pygame.draw.polygon(
             surface, self.colors[piece.faces[self.faces[self.index // 9]]], points
         )
         pygame.draw.polygon(surface, (0, 0, 0), points, 3)
 
-    def removeZ(self):
-        newPoints = []
+    def remove_z(self):
+        new_points = []
         for point in self.points:
-            newPoints.append((point[0], point[1]))
-        return newPoints
+            new_points.append((point[0], point[1]))
+        return new_points
 
     @property
-    def averageZ(self):
+    def average_z(self):
         # Calculate the average z-value of the points
         return sum(point[2] for point in self.points) / len(self.points)

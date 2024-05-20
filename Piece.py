@@ -24,18 +24,18 @@ class Piece:
 
     Attributes:
         id (int): A unique identifier for the piece, automatically generated.
-        pieceType (str): A string representing the type of piece ("OP" by default).
+        piece_type (str): A string representing the type of piece ("OP" by default).
         faces (dict): A dictionary mapping each face ('U', 'L', 'F', 'R', 'B', 'D') to
                       its color.
-        rotationMap (dict): A dictionary mapping rotation directions to cube faces.
+        rotation_map (dict): A dictionary mapping rotation directions to cube faces.
 
     Methods:
         rotate: Rotates the piece according to a specified rotation direction and mode
                 (prime).
-        doRotation: Performs the rotation on the piece's faces based on the specified
+        do_rotation: Performs the rotation on the piece's faces based on the specified
                     axis.
-        invertAxis: Inverts the axis direction for rotation.
-        getFaceColor: Returns the color of a specified face.
+        invert_axis: Inverts the axis direction for rotation.
+        get_face_color: Returns the color of a specified face.
     """
 
     ID_ITER = itertools.count()
@@ -52,7 +52,7 @@ class Piece:
             "D": "yellow".ljust(6),
         }
 
-        self.rotationMap = {
+        self.rotation_map = {
             "U": "Y",
             "F": "Z",
             "L": "-X",
@@ -76,14 +76,14 @@ class Piece:
             prime (bool): Indicates whether the rotation should be counter-clockwise
                           (True) or clockwise (False).
         """
-        rotation = self.rotationMap[rotation]
+        rotation = self.rotation_map[rotation]
         if rotation.startswith("-"):
             rotation = rotation[1:]
             prime = not prime
 
-        self.doRotation(rotation, prime=prime)
+        self.do_rotation(rotation, prime=prime)
 
-    def doRotation(self, axis: str, prime: bool = False) -> None:
+    def do_rotation(self, axis: str, prime: bool = False) -> None:
         """
         Performs the rotation on the piece's faces based on the specified axis.
 
@@ -108,10 +108,10 @@ class Piece:
         # fmt: on
 
         if prime:
-            self.doRotation(axis, False)
-            self.doRotation(axis, False)
+            self.do_rotation(axis, False)
+            self.do_rotation(axis, False)
 
-    def invertAxis(self, axis: str) -> str:
+    def invert_axis(self, axis: str) -> str:
         """
         Inverts the specified axis direction.
 
@@ -123,7 +123,7 @@ class Piece:
         """
         return axis[1:] if axis.startswith("-") else "-" + axis
 
-    def getFaceColor(self, face: str) -> str:
+    def get_face_color(self, face: str) -> str:
         """
         Returns the color of the specified face of the piece.
 
