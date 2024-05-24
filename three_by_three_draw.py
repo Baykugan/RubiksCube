@@ -220,18 +220,24 @@ class RubiksCubeSimulator:
         ]
         # fmt: on
 
-    def project_point(self, point, size, fov, viewer_distance):
+    def project_point(
+        self,
+        point: tuple[float, float, float],
+        size: tuple[int, int],
+        fov: int,
+        viewer_distance: int,
+    ) -> tuple[float, float, float]:
         """
         Project a 3D point onto a 2D plane for rendering.
 
         Args:
-            point (tuple): The 3D point to be projected.
-            size (tuple): The size of the 2D plane.
+            point (tuple[float, float, float]): The 3D point to be projected.
+            size (tuple[int, int]): The size of the 2D plane.
             fov (int): The field of view of the camera.
             viewer_distance (int): The distance of the camera from the plane.
 
         Returns:
-            tuple: The projected 2D point on the plane.
+            tuple[float, float, float]: The projected 2D point on the plane.
         """
 
         fov_rad = np.radians(fov)
@@ -244,16 +250,16 @@ class RubiksCubeSimulator:
 
         return (int(projected_x), int(projected_y), point[2])
 
-    def rotate_x(self, point, angle):
+    def rotate_x(self, point: tuple[int, int], angle: float) -> tuple[float, float]:
         """
         Rotate a point around the x-axis by the given angle.
 
         Args:
-            point (tuple): The 3D point to be rotated.
+            point (tuple[int, int]): The 3D point to be rotated.
             angle (float): The angle of rotation in radians.
 
         Returns:
-            tuple: The rotated 3D point.
+            tuple[float, float]: The rotated 3D point.
         """
 
         rotation_matrix = np.array(
@@ -265,16 +271,16 @@ class RubiksCubeSimulator:
         )
         return np.dot(point, rotation_matrix)
 
-    def rotate_y(self, point, angle):
+    def rotate_y(self, point: tuple[int, int], angle: float) -> tuple[float, float]:
         """
         Rotate a point around the y-axis by the given angle.
 
         Args:
-            point (tuple): The 3D point to be rotated.
+            point (tuple[int, int]): The 3D point to be rotated.
             angle (float): The angle of rotation in radians.
 
         Returns:
-            tuple: The rotated 3D point.
+            tuple[float, float]: The rotated 3D point.
         """
 
         rotation_matrix = np.array(
@@ -286,7 +292,7 @@ class RubiksCubeSimulator:
         )
         return np.dot(point, rotation_matrix)
 
-    async def run(self):
+    async def run(self) -> None:
         """
         Run the Pygame event loop for rendering and interaction.
         """
@@ -381,29 +387,31 @@ class DrawableSquare:
         average_z: Calculates the average z-coordinate of the points.
     """
 
-    def __init__(self, cube, points, index, color_dict):
+    def __init__(
+        self, cube, points: tuple[int, int], index: int, color_dict: dict
+    ) -> None:
         """
         Initialize a DrawableSquare object with the given parameters.
-        
+
         Args:
             cube (RubiksCube): The Rubik's Cube object associated with the square.
             points (list): A list of 2D points representing the corners of the square.
             index (int): The index of the square.
             color_dict (dict): A dictionary mapping face names to RGB colors.
         """
-        
+
         self.cube = cube
         self.points = points  # Points should be a list of tuples or Vector3
         self.faces = ["U", "L", "F", "R", "B", "D"]
         self.index = index
         self.colors = color_dict
 
-    def draw(self, surface):
+    def draw(self, surface: pygame.display) -> None:
         """
         Draw the square on the Pygame surface.
 
         Args:
-            surface: The Pygame surface to draw on.
+            surface(pygame.display): The Pygame surface to draw on.
         """
 
         points = self.remove_z()
@@ -413,12 +421,12 @@ class DrawableSquare:
         )
         pygame.draw.polygon(surface, (0, 0, 0), points, 3)
 
-    def remove_z(self):
+    def remove_z(self) -> list[tuple[int, int]]:
         """
         Remove the z-coordinate from the points.
 
         Returns:
-            list: A list of 2D points representing the corners of the square.
+            list[tuple[int, int]]: A list of 2D points representing the corners of the square.
         """
 
         new_points = []
@@ -427,7 +435,7 @@ class DrawableSquare:
         return new_points
 
     @property
-    def average_z(self):
+    def average_z(self) -> float:
         """
         Calculate the average z-coordinate of the points.
 

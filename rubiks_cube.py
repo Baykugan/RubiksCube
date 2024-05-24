@@ -246,14 +246,14 @@ class Cube(ABC):
         await self.do_sequence(scramble_str)
 
     # Solves the cube by reverting all moves
-    async def solve(self):
+    async def solve(self) -> None:
         """
         Solves the Rubik's Cube by executing a sequence of moves.
         """
 
         await self.do_sequence(self.reverse_sequence(self.previous_moves))
 
-    def get_color(self, i, j, k, face):
+    def get_color(self, i: int, j: int, k: int, face: str) -> str:
         """
         Gets the color of a piece in the Rubik's Cube.
 

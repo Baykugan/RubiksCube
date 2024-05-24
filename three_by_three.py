@@ -173,7 +173,7 @@ class ThreeByThree(Cube):
             await asyncio.sleep(0.2)
 
 
-async def get_input(cube, simulator):
+async def get_input(cube, simulator: RubiksCubeSimulator) -> None:
     """
     Handles user input asynchronously to interact with the cube simulation.
 
@@ -182,7 +182,7 @@ async def get_input(cube, simulator):
         simulator (RubiksCubeSimulator): The Rubik's Cube simulator object to run.
     """
 
-    async def shutdown(simulator):
+    async def shutdown(simulator: RubiksCubeSimulator) -> None:
         await asyncShutdown.wait()
         simulator.running = False
 
@@ -227,7 +227,7 @@ async def get_input(cube, simulator):
 asyncShutdown = asyncio.Event()
 
 
-async def main():
+async def main() -> None:
     """
     Main function to run the Rubik's Cube simulation asynchronously.
     """
