@@ -154,10 +154,6 @@ class Cube(ABC):
     def get_color(self, i, j, k, layer):
         return self.piece_list[i][j][k][0].get_face_color(layer)
 
-    def get_face_from_layer(self, layer):
-        layer_to_face = {"r": "X", "l": "-X", "u": "-Y", "d": "Y", "b": "Z", "f": "-Z"}
-        return layer_to_face[layer]
-
     # pylint: disable=too-many-branches
     # pylint: disable=too-many-statements
     def pprint(self, side: str = "all") -> None:
