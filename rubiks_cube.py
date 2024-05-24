@@ -151,8 +151,8 @@ class Cube(ABC):
     async def solve(self):
         await self.do_sequence(self.reverse_sequence(self.previous_moves))
 
-    def get_color(self, i, j, k, layer):
-        return self.piece_list[i][j][k][0].get_face_color(layer)
+    def get_color(self, i, j, k, face):
+        return self.piece_list[i][j][k][0].get_face_color(face)
 
     # pylint: disable=too-many-branches
     # pylint: disable=too-many-statements
