@@ -22,22 +22,28 @@ from three_by_three_draw import RubiksCubeSimulator
 
 class ThreeByThree(Cube):
     """
-    Represents a 3x3 Rubik's Cube, providing functionalities for manipulating the
-    cube's state through moves and sequences, and solving the cube asynchronously. This
-    class extends the Cube class by implementing specific configurations and operations
-    suited for a 3x3 Rubik's Cube.
+    Represents a standard 3x3 Rubik's Cube with functionalities for executing moves,
+    sequences, and solving the cube asynchronously. Inherits from the Cube class.
 
     Attributes:
-        cube_type (str): Identifier for the type of cube, set to "ThreeByThree".
-        indent_level (int): Current indentation level for console output formatting.
-        indentation (str): A string used for indenting console outputs.
-        sequence_map (dict): Maps sequences of moves to their corresponding cube
-                            rotations.
-        layers (dict): Organizes the cube's pieces in various layers and orientations.
-        faces (list): List of all face pieces structured in a specific cube orientation.
+        cube_type (str): A string representing the type of cube ("ThreeByThree").
+        sequence_map (dict): A dictionary mapping move sequences to their corresponding
+                             effects on the cube.
+        layers (dict): A dictionary mapping layer names to their elements for rotation.
+        faces (list): A list of all non-internal layer elements in clockwise order.
+
+    Methods:
+        do_move: Executes a single cube move asynchronously as specified by the move
+                 notation.
+        get_input: Handles user input asynchronously to interact with the cube
+            simulation.
     """
 
     def __init__(self) -> None:
+        """
+        Initializes a 3x3 Rubik's Cube object with the standard layout and attributes.
+        """
+
         super().__init__(3, 3, 3)
 
         self.cube_type = "ThreeByThree"
@@ -134,12 +140,10 @@ class ThreeByThree(Cube):
         """
         Executes a single cube move asynchronously as specified by the move notation.
 
-        Parameters:
-            move (str): The move to be executed, described in standard cube notation.
-
-        Modifies the cube state by rotating layers according to the specified move and
-        handles the updating of the move history.
+        Args:
+            move (str): The move notation to execute (e.g., 'U', 'F').
         """
+
         # Extract repeat part
         repeat = int(match.group()) % 4 if (match := re.search(r"\d+", move)) else 1
 
@@ -171,14 +175,11 @@ class ThreeByThree(Cube):
 
 async def get_input(cube, simulator):
     """
-    Handles user input asynchronously in a loop, allowing the user to interact with
-    the cube simulation through various commands like adding sequences, saving
-    sequences, moving the cube, scrambling, solving, and managing the simulation state.
+    Handles user input asynchronously to interact with the cube simulation.
 
-    Parameters:
-        cube (ThreeByThree): The cube object to interact with.
-        simulator (RubiksCubeSimulator): The cube simulator object for graphical
-                                         interaction.
+    Args:
+        cube (ThreeByThree): The 3x3 Rubik's Cube object to manipulate.
+        simulator (RubiksCubeSimulator): The Rubik's Cube simulator object to run.
     """
 
     async def shutdown(simulator):
@@ -228,9 +229,9 @@ asyncShutdown = asyncio.Event()
 
 async def main():
     """
-    Main function to initiate the cube and simulator, and start handling user input.
-    Sets up an asynchronous event loop to manage cube operations and user interactions.
+    Main function to run the Rubik's Cube simulation asynchronously.
     """
+
     cube = ThreeByThree()
     simulator = RubiksCubeSimulator(cube)
 

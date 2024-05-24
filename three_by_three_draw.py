@@ -5,7 +5,7 @@ It supports asynchronous operations to keep the simulation responsive.
 
 Classes:
     RubiksCubeSimulator: Handles the graphical rendering and interaction of a 3x3 
-    Rubik's Cube simulation in a 3D space.
+                         Rubik's Cube simulation in a 3D space.
 """
 
 import asyncio
@@ -15,6 +15,31 @@ import numpy as np
 
 class RubiksCubeSimulator:
     """
+    A class to handle the graphical rendering and interaction of a 3x3 Rubik's Cube
+    simulation in a 3D space. It uses Pygame to render the cube and allows the user
+    to rotate the cube and perform moves interactively.
+
+    Attributes:
+        cube (RubiksCube): The Rubik's Cube object to be visualized.
+        running (bool): A flag indicating whether the simulation is running.
+        size (tuple): The size of the Pygame window.
+        fov (int): The field of view of the camera.
+        distance (int): The distance of the camera from the cube.
+        angle_x (float): The rotation angle around the x-axis.
+        angle_y (float): The rotation angle around the y-axis.
+        colors (dict): A dictionary mapping color names to RGB values.
+        vertices (list): A list of 3D vertices representing the corners and edges of
+            the cube.
+        edges (list): A list of edge pairs connecting the vertices.
+        squares (list): A list of square faces of the cube defined by the vertices.
+
+    Methods:
+        project_point: Projects a 3D point onto a 2D plane for rendering.
+        rotate_x: Rotates a point around the x-axis by a given angle.
+        rotate_y: Rotates a point around the y-axis by a given angle.
+        run: Runs the Pygame event loop for rendering and interaction.
+
+
        6_ _ _ _ _ _ _ _6
        /|             /|
       / |            / |
@@ -28,6 +53,13 @@ class RubiksCubeSimulator:
     """
 
     def __init__(self, cube) -> None:
+        """
+        Initialize the RubiksCubeSimulator with a Rubik's Cube object.
+
+        Args:
+            cube (RubiksCube): The Rubik's Cube object to be visualized.
+        """
+
         self.cube = cube
         self.running = False
 
@@ -189,6 +221,19 @@ class RubiksCubeSimulator:
         # fmt: on
 
     def project_point(self, point, size, fov, viewer_distance):
+        """
+        Project a 3D point onto a 2D plane for rendering.
+
+        Args:
+            point (tuple): The 3D point to be projected.
+            size (tuple): The size of the 2D plane.
+            fov (int): The field of view of the camera.
+            viewer_distance (int): The distance of the camera from the plane.
+
+        Returns:
+            tuple: The projected 2D point on the plane.
+        """
+
         fov_rad = np.radians(fov)
         focal_length = (min(size[0], size[1]) / 2) / np.tan(fov_rad / 2)
 
@@ -200,7 +245,17 @@ class RubiksCubeSimulator:
         return (int(projected_x), int(projected_y), point[2])
 
     def rotate_x(self, point, angle):
-        """Rotate a point around the x-axis by the given angle."""
+        """
+        Rotate a point around the x-axis by the given angle.
+
+        Args:
+            point (tuple): The 3D point to be rotated.
+            angle (float): The angle of rotation in radians.
+
+        Returns:
+            tuple: The rotated 3D point.
+        """
+
         rotation_matrix = np.array(
             [
                 [1, 0, 0],
@@ -211,7 +266,17 @@ class RubiksCubeSimulator:
         return np.dot(point, rotation_matrix)
 
     def rotate_y(self, point, angle):
-        """Rotate a point around the y-axis by the given angle."""
+        """
+        Rotate a point around the y-axis by the given angle.
+
+        Args:
+            point (tuple): The 3D point to be rotated.
+            angle (float): The angle of rotation in radians.
+
+        Returns:
+            tuple: The rotated 3D point.
+        """
+
         rotation_matrix = np.array(
             [
                 [np.cos(angle), 0, np.sin(angle)],
@@ -222,6 +287,10 @@ class RubiksCubeSimulator:
         return np.dot(point, rotation_matrix)
 
     async def run(self):
+        """
+        Run the Pygame event loop for rendering and interaction.
+        """
+
         # pylint: disable=no-member
         pygame.init()
 
@@ -296,7 +365,33 @@ class RubiksCubeSimulator:
 
 
 class DrawableSquare:
+    """
+    A class to represent a drawable square face of a Rubik's Cube piece.
+
+    Attributes:
+        cube (RubiksCube): The Rubik's Cube object associated with the square.
+        points (list): A list of 2D points representing the corners of the square.
+        faces (list): A list of face names corresponding to the square.
+        index (int): The index of the square.
+        colors (dict): A dictionary mapping face names to RGB colors.
+
+    Methods:
+        draw: Draws the square on the Pygame surface.
+        remove_z: Removes the z-coordinate from the points.
+        average_z: Calculates the average z-coordinate of the points.
+    """
+
     def __init__(self, cube, points, index, color_dict):
+        """
+        Initialize a DrawableSquare object with the given parameters.
+        
+        Args:
+            cube (RubiksCube): The Rubik's Cube object associated with the square.
+            points (list): A list of 2D points representing the corners of the square.
+            index (int): The index of the square.
+            color_dict (dict): A dictionary mapping face names to RGB colors.
+        """
+        
         self.cube = cube
         self.points = points  # Points should be a list of tuples or Vector3
         self.faces = ["U", "L", "F", "R", "B", "D"]
@@ -304,6 +399,13 @@ class DrawableSquare:
         self.colors = color_dict
 
     def draw(self, surface):
+        """
+        Draw the square on the Pygame surface.
+
+        Args:
+            surface: The Pygame surface to draw on.
+        """
+
         points = self.remove_z()
         piece = self.cube.faces[self.index][0]
         pygame.draw.polygon(
@@ -312,6 +414,13 @@ class DrawableSquare:
         pygame.draw.polygon(surface, (0, 0, 0), points, 3)
 
     def remove_z(self):
+        """
+        Remove the z-coordinate from the points.
+
+        Returns:
+            list: A list of 2D points representing the corners of the square.
+        """
+
         new_points = []
         for point in self.points:
             new_points.append((point[0], point[1]))
@@ -319,5 +428,11 @@ class DrawableSquare:
 
     @property
     def average_z(self):
-        # Calculate the average z-value of the points
+        """
+        Calculate the average z-coordinate of the points.
+
+        Returns:
+            float: The average z-coordinate of the points.
+        """
+
         return sum(point[2] for point in self.points) / len(self.points)

@@ -23,11 +23,72 @@ from piece import Piece
 
 
 class Cube(ABC):
-    "This is the Rubiks Cube parent class"
+    """
+    Represents a Rubik's Cube.
+
+    Attributes:
+        ID_ITER (itertools.count): Iterator for generating unique IDs for each cube
+            instance.
+
+    Args:
+        x (int): The number of pieces in the x-axis.
+        y (int): The number of pieces in the y-axis.
+        z (int): The number of pieces in the z-axis.
+
+    Properties:
+        id (int): The unique ID of the cube instance.
+        cube_type (str): The type of the cube.
+        x (int): The number of pieces in the x-axis.
+        y (int): The number of pieces in the y-axis.
+        z (int): The number of pieces in the z-axis.
+        piece_list (list): The list of pieces in the cube.
+        id_list (list): The list of IDs of all the pieces in the cube.
+        previous_moves (str): The sequence of previous moves performed on the cube.
+        indent_level (int): The current indentation level for pretty printing.
+        indentation (str): The string used for indentation in pretty printing.
+        layers (dict): The dictionary of cube layers.
+        sequence_map (dict): The dictionary mapping moves to sequences.
+
+    Methods:
+        rotate_layer(): Rotates a layer of the Rubik's Cube.
+        reverse_sequence(): Reverses the sequence of moves in a Rubik's Cube algorithm.
+        simplify_sequence(): Simplifies a sequence of Rubik's Cube moves by removing
+            redundant moves.
+        scramble(): Scrambles the Rubik's Cube by performing a random sequence of moves.
+        solve(): Solves the Rubik's Cube by reverting all moves.
+        get_color(): Gets the color of a piece in the Rubik's Cube.
+        pprint(): Prints the Rubik's Cube sides based on the specified side parameter.
+        edit_sequence_map(): Allows the user to edit the sequence map by adding a new
+            sequence name and sequence.
+        save_sequence_map(): Saves the sequence map to a JSON file.
+        save(): Saves the current state of the Rubik's Cube to a JSON file.
+        do_move(): Moves the Rubik's Cube.
+        get_sequence(): Retrieves a sequence and its repetition count based on the
+            sequence name.
+        do_sequence(): Executes a sequence of Rubik's Cube moves.
+        get_move(): Prompts the user to enter a move and executes it.
+        up_layer(): Returns the colors of the up side of the Rubik's Cube.
+        left_layer(): Returns the colors of the left side of the Rubik's Cube.
+        front_layer(): Returns the colors of the front side of the Rubik's Cube.
+        right_layer(): Returns the colors of the right side of the Rubik's Cube.
+        back_layer(): Returns the colors of the back side of the Rubik's Cube.
+        down_layer(): Returns the colors of the down side of the Rubik's Cube.
+        is_side_solved(): Checks if a side is solved based on the colors of its pieces.
+        is_solved(): Checks if the Rubik's Cube is solved.
+    """
 
     ID_ITER = itertools.count()
 
     def __init__(self, x: int, y: int, z: int) -> None:
+        """
+        Initializes a new instance of the Cube class.
+
+        Args:
+            x (int): The number of pieces in the x-axis.
+            y (int): The number of pieces in the y-axis.
+            z (int): The number of pieces in the z-axis.
+        """
+
         self.id = next(Cube.ID_ITER)
 
         self.cube_type = "BaseCube"
@@ -75,6 +136,16 @@ class Cube(ABC):
     def rotate_layer(
         self, side: list[list[list[Piece]]], move: str, prime: bool = False
     ) -> None:
+        """
+        Rotate a layer of the Rubik's Cube.
+
+        Args:
+            side (list[list[list[Piece]]]): The side of the Rubik's Cube to rotate.
+            move (str): The move to perform on the layer (e.g., 'U', 'R', 'F', etc.).
+            prime (bool, optional): Whether to perform the move in the opposite
+                direction. Defaults to False.
+        """
+
         for ring in side:
             if len(ring) > 1:
                 if prime:
@@ -92,6 +163,16 @@ class Cube(ABC):
 
     # Reverses sequence by position and inverts prime
     def reverse_sequence(self, moves: str) -> str:
+        """
+        Reverses the sequence of moves in a Rubik's Cube algorithm.
+
+        Args:
+            moves (str): The sequence of moves to be reversed.
+
+        Returns:
+            str: The reversed sequence of moves.
+        """
+
         return " ".join(
             [
                 move[:-1] if move.endswith("'") else move + "'"
@@ -100,6 +181,16 @@ class Cube(ABC):
         )
 
     def simplify_sequence(self, seq: str) -> str:
+        """
+        Simplifies a sequence of Rubik's Cube moves by removing redundant moves.
+
+        Args:
+            seq (str): The sequence of Rubik's Cube moves.
+
+        Returns:
+            str: The simplified sequence of Rubik's Cube moves.
+        """
+
         previous_sequence = ""
 
         # Check direction of triple turn and returns single a diametrically opposed turn
@@ -139,6 +230,13 @@ class Cube(ABC):
 
     # Scrambles the cube
     async def scramble(self, iterations):
+        """
+        Scrambles the Rubik's Cube by performing a random sequence of moves.
+
+        Args:
+            iterations (int): The number of iterations to scramble the cube.
+        """
+
         key_list = [key for key in self.layers]
         suffix_list = ["' ", " "]
         scramble_str = ""
@@ -149,14 +247,39 @@ class Cube(ABC):
 
     # Solves the cube by reverting all moves
     async def solve(self):
+        """
+        Solves the Rubik's Cube by executing a sequence of moves.
+        """
+
         await self.do_sequence(self.reverse_sequence(self.previous_moves))
 
     def get_color(self, i, j, k, face):
+        """
+        Gets the color of a piece in the Rubik's Cube.
+
+        Args:
+            i (int): The x-axis index of the piece.
+            j (int): The y-axis index of the piece.
+            k (int): The z-axis index of the piece.
+            face (str): The face of the piece to get the color of.
+
+        Returns:
+            str: The color of the specified face of the piece.
+        """
+
         return self.piece_list[i][j][k][0].get_face_color(face)
 
     # pylint: disable=too-many-branches
     # pylint: disable=too-many-statements
     def pprint(self, side: str = "all") -> None:
+        """
+        Prints the Rubik's Cube sides based on the specified side parameter.
+
+        Args:
+            side (str, optional): The side to print. Defaults to "all".
+                Possible values: "all", "up", "left", "front", "right", "back", "down".
+        """
+
         full_str = ""
 
         if side == "all":
@@ -317,10 +440,18 @@ class Cube(ABC):
     # pylint: enable=too-many-statements
 
     def edit_sequence_map(self) -> None:
+        """
+        Allows the user to edit the sequence map by adding new sequences
+        """
+
         sequence_name = input("What is the name of the sequence? ")
         self.sequence_map[sequence_name] = input("What is the sequence? ")
 
     def save_sequence_map(self) -> None:
+        """
+        Saves the sequence map to a JSON file.
+        """
+
         file_name = "Sequences.json"
         with open(file_name, "r", encoding="UTF-8") as file:
             data = json.load(file)
@@ -332,6 +463,10 @@ class Cube(ABC):
         print("Saved sequence_map")
 
     def save(self) -> None:
+        """
+        Saves the current state of the Rubik's Cube to a JSON file.
+        """
+
         file_name = "Saves.json"
         save_name = input("What to save as? ")
 
@@ -346,7 +481,7 @@ class Cube(ABC):
     @abstractmethod
     async def do_move(self, move: str) -> None:
         """
-        Funntion that moves the cube.
+        Funntion that moves the Rubik's Cube.
         Needs to be defined in each subclass
         """
 
@@ -354,13 +489,14 @@ class Cube(ABC):
         """
         Retrieves a sequence and its repetition count based on the sequence name.
 
-        Parameters:
+        Args:
             sequence_name (str): The name of the sequence to retrieve.
 
         Returns:
             tuple[str, int]: A tuple containing the sequence of moves as a string and
                              the repetition count.
         """
+
         # Extract repeat part
         repeat = (
             int(match.group()) if (match := re.search(r"\d+", sequence_name)) else 1
@@ -382,14 +518,12 @@ class Cube(ABC):
 
     async def do_sequence(self, moves: str) -> None:
         """
-        Asynchronously executes a sequence of moves on the Rubik's Cube.
+        Executes a sequence of Rubik's Cube moves.
 
-        Parameters:
-            moves (str): A string containing a sequence of moves separated by spaces.
-
-        This method processes each move in the sequence, handling both basic moves
-        and complex sequences that involve multiple layers and rotations.
+        Args:
+            moves (str): The sequence of moves to perform.
         """
+
         for move in moves.split():
             # Basic moves
             if re.match(r"^[LMRUEDFSB]\d*[']?$", move):
@@ -415,11 +549,7 @@ class Cube(ABC):
 
     async def get_move(self) -> None:
         """
-        Continuously prompts the user for moves to perform on the cube and executes
-        them until an exit condition is met.
-
-        This method uses asynchronous input to interact with the user, allowing
-        for dynamic command entry and immediate cube manipulation.
+        Prompts the user to enter a move and executes it.
         """
 
         while moves := await ainput("What moves to do? "):
@@ -434,7 +564,13 @@ class Cube(ABC):
     #############################################
 
     def up_layer(self) -> list[str]:
-        # Top layer
+        """
+        Returns the colors of the up up side the Rubik's Cube.
+
+        Returns:
+            list[str]: The colors of the up side of the Rubik's Cube.
+        """
+
         side_list = []
         for i in range(self.z - 1, -1, -1):
             for j in range(self.x):
@@ -442,7 +578,13 @@ class Cube(ABC):
         return side_list
 
     def left_layer(self) -> list[str]:
-        # Left layer
+        """
+        Returns the colors of the left side of the Rubik's Cube.
+
+        Returns:
+            list[str]: The colors of the left side of the Rubik's Cube.
+        """
+
         side_list = []
         for i in range(self.y):
             for j in range(self.z - 1, -1, -1):
@@ -450,7 +592,13 @@ class Cube(ABC):
         return side_list
 
     def front_layer(self) -> list[str]:
-        # Front layer
+        """
+        Returns the colors of the front side of the Rubik's Cube.
+
+        Returns:
+            list[str]: The colors of the front side of the Rubik's Cube.
+        """
+
         side_list = []
         for i in range(self.y):
             for j in range(self.x):
@@ -458,7 +606,13 @@ class Cube(ABC):
         return side_list
 
     def right_layer(self) -> list[str]:
-        # Right layer
+        """
+        Returns the colors of the right side of the Rubik's Cube.
+
+        Returns:
+            list[str]: The colors of the right side of the Rubik's Cube.
+        """
+
         side_list = []
         for i in range(self.y):
             for j in range(self.z):
@@ -466,7 +620,13 @@ class Cube(ABC):
         return side_list
 
     def back_layer(self) -> list[str]:
-        # Back layer
+        """
+        Returns the colors of the back side of the Rubik's Cube.
+
+        Returns:
+            list[str]: The colors of the back side of the Rubik's Cube.
+        """
+
         side_list = []
         for i in range(self.y):
             for j in range(self.x - 1, -1, -1):
@@ -474,7 +634,13 @@ class Cube(ABC):
         return side_list
 
     def down_layer(self) -> list[str]:
-        # Bottom layer
+        """
+        Returns the colors of the  down side of the Rubik's Cube.
+
+        Returns:
+            list[str]: The colors of the down side of the Rubik's Cube.
+        """
+
         side_list = []
         for i in range(self.z):
             for j in range(self.x):
@@ -490,9 +656,26 @@ class Cube(ABC):
     #############################################
 
     def is_side_solved(self, colors: list[str]) -> bool:
+        """
+        Checks if a side is solved based on the colors of its pieces.
+
+        Args:
+            colors (list[str]): The colors of the side to check.
+
+        Returns:
+            bool: True if the side is solved; False otherwise.
+        """
+
         return all(color == colors[0] for color in colors)
 
     def is_solved(self) -> bool:
+        """
+        Checks if the Rubik's Cube is solved.
+
+        Returns:
+            bool: True if the Rubik's Cube is solved; False otherwise.
+        """
+
         up = self.up_layer()
         left = self.left_layer()
         front = self.front_layer()
